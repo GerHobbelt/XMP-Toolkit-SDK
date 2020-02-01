@@ -93,13 +93,20 @@ static const TIFF_MappingToXMP sPrimaryIFDMappings[] = {	// A blank name indicat
 	{ /*   319 */ kTIFF_PrimaryChromaticities,     kTIFF_RationalType,    6,         kExport_Never,      kXMP_NS_TIFF,  "PrimaryChromaticities" },
 	{ /*   531 */ kTIFF_YCbCrPositioning,          kTIFF_ShortType,       1,         kExport_Never,      kXMP_NS_TIFF,  "YCbCrPositioning" },
 	{ /*   532 */ kTIFF_ReferenceBlackWhite,       kTIFF_RationalType,    6,         kExport_Never,      kXMP_NS_TIFF,  "ReferenceBlackWhite" },
-	{ /*   306 */ kTIFF_DateTime,                  kTIFF_ASCIIType,       20,        kExport_Always,     "", "" },	// ! Has a special mapping.
+	{ /*   306 */ kTIFF_DateTime,                  kTIFF_ASCIIType,       20,        kExport_Always,     "", "" },	// ! Has a special mapping.	
 	{ /*   270 */ kTIFF_ImageDescription,          kTIFF_ASCIIType,       kAnyCount, kExport_Always,     "", "" },	// ! Has a special mapping.
 	{ /*   271 */ kTIFF_Make,                      kTIFF_ASCIIType,       kAnyCount, kExport_InjectOnly, kXMP_NS_TIFF,  "Make" },
 	{ /*   272 */ kTIFF_Model,                     kTIFF_ASCIIType,       kAnyCount, kExport_InjectOnly, kXMP_NS_TIFF,  "Model" },
 	{ /*   305 */ kTIFF_Software,                  kTIFF_ASCIIType,       kAnyCount, kExport_Always,     kXMP_NS_TIFF,  "Software" },	// Has alias to xmp:CreatorTool.
 	{ /*   315 */ kTIFF_Artist,                    kTIFF_ASCIIType,       kAnyCount, kExport_Always,     "", "" },	// ! Has a special mapping.
 	{ /* 33432 */ kTIFF_Copyright,                 kTIFF_ASCIIType,       kAnyCount, kExport_Always,     "", "" },	// ! Has a special mapping.
+
+	{ /* 40091 */ kTIFF_XPTitle,				   kTIFF_ByteType,        kAnyCount,  kExport_Always,	 kXMP_NS_TIFF,	"XPTitle" },
+	{ /* 40092 */ kTIFF_XPComment,				   kTIFF_ByteType,        kAnyCount,  kExport_Always,	 kXMP_NS_TIFF,	"XPComment" },
+	{ /* 40093 */ kTIFF_XPAuthor,				   kTIFF_ByteType,        kAnyCount,  kExport_Always,	 kXMP_NS_TIFF,	"XPAuthor" },
+	{ /* 40094 */ kTIFF_XPKeywords,				   kTIFF_ByteType,        kAnyCount,  kExport_Always,	 kXMP_NS_TIFF,	"XPKeywords" },
+	{ /* 40095 */ kTIFF_XPSubject,				   kTIFF_ByteType,        kAnyCount,  kExport_Always,	 kXMP_NS_TIFF,	"XPSubject" },
+
 	{ 0xFFFF, 0, 0, 0 }	// ! Must end with sentinel.
 };
 
@@ -173,6 +180,7 @@ static const TIFF_MappingToXMP sExifIFDMappings[] = {
 	{ /* 41994 */ kTIFF_Sharpness,                 kTIFF_ShortType,       1,         kExport_InjectOnly, kXMP_NS_EXIF,  "Sharpness" },
 	{ /* 41995 */ kTIFF_DeviceSettingDescription,  kTIFF_UndefinedType,   kAnyCount, kExport_InjectOnly, "", "" },	// ! Has a special mapping.
 	{ /* 41996 */ kTIFF_SubjectDistanceRange,      kTIFF_ShortType,       1,         kExport_InjectOnly, kXMP_NS_EXIF,  "SubjectDistanceRange" },
+	
 
 	{ 0xFFFF, 0, 0, 0 }	// ! Must end with sentinel.
 };
@@ -2122,6 +2130,12 @@ PhotoDataUtils::Import2WayExif ( const TIFF_Manager & exif, SXMPMeta * xmp, int 
 		}
 	}
 
+	// InteroperabilityIndex
+	found = exif.GetTag(kTIFF_InteropIFD, kTIFF_InteroperabilityIndex, &tagInfo);
+	if (found && (tagInfo.type == kTIFF_ASCIIType)) {
+		ImportSingleTIFF_ASCII(tagInfo, xmp, kXMP_NS_EXIF, "InteroperabilityIndex");
+	}
+
 	// 36864 ExifVersion is 4 "undefined" ASCII characters.
 	found = exif.GetTag ( kTIFF_ExifIFD, kTIFF_ExifVersion, &tagInfo );
 	if ( found && (tagInfo.type == kTIFF_UndefinedType) && (tagInfo.count == 4) ) {
@@ -2565,7 +2579,7 @@ ExportArrayTIFF ( TIFF_Manager * tiff, XMP_Uns8 ifd, const TIFF_MappingToXMP & m
 {
 	XMP_Assert ( (mapInfo.count != 1) && (mapInfo.type != kTIFF_ASCIIType) );
 	XMP_Assert ( mapInfo.name[0] != 0 );	// Must be a standard mapping.
-	XMP_Assert ( (mapInfo.type == kTIFF_ShortType) || (mapInfo.type == kTIFF_RationalType) );
+	XMP_Assert ( (mapInfo.type == kTIFF_ShortType) || (mapInfo.type == kTIFF_RationalType) || (mapInfo.type == kTIFF_ByteType) );
 	XMP_Assert ( xmp.DoesPropertyExist ( xmpNS, xmpArray ) );
 	
 	size_t arraySize = xmp.CountArrayItems ( xmpNS, xmpArray );
@@ -2613,6 +2627,25 @@ ExportArrayTIFF ( TIFF_Manager * tiff, XMP_Uns8 ifd, const TIFF_MappingToXMP & m
 		}
 	
 		tiff->SetTag ( ifd, mapInfo.id, kTIFF_RationalType, (XMP_Uns32)arraySize, &rationalVector[0] );
+
+	}
+	else if (mapInfo.type == kTIFF_ByteType) {
+
+		std::vector<XMP_Uns8> byteVector;
+		byteVector.assign(arraySize, 0);
+		XMP_Uns8* bytePtr = (XMP_Uns8*)&byteVector[0];
+
+		std::string itemPath;
+		XMP_Int32 int32;
+		XMP_Uns8 uns8;
+		for (size_t i = 1; i <= arraySize; ++i, ++bytePtr) {
+			SXMPUtils::ComposeArrayItemPath(xmpNS, xmpArray, (XMP_Index)i, &itemPath);
+			xmp.GetProperty_Int(xmpNS, itemPath.c_str(), &int32, 0);
+			uns8 = (XMP_Uns8)int32;			
+			*bytePtr = uns8;
+		}
+
+		tiff->SetTag(ifd, mapInfo.id, kTIFF_ByteType, (XMP_Uns32)arraySize, &byteVector[0]);
 
 	}
 
@@ -3369,7 +3402,7 @@ PhotoDataUtils::ExportExif ( SXMPMeta * xmp, TIFF_Manager * exif )
 	ExportTIFF_ArrayASCII ( *xmp, kXMP_NS_DC, "creator", exif, kTIFF_PrimaryIFD, kTIFF_Artist );
 
 	ExportTIFF_LocTextASCII ( *xmp, kXMP_NS_DC, "rights", exif, kTIFF_PrimaryIFD, kTIFF_Copyright );
-		
+
 	haveXMP = xmp->GetProperty ( kXMP_NS_EXIF, "ExifVersion", &xmpValue, 0 );
 	if ( haveXMP && (xmpValue.size() == 4) && (! exif->GetTag ( kTIFF_ExifIFD, kTIFF_ExifVersion, 0 )) ) {
 		// 36864 ExifVersion is 4 "undefined" ASCII characters.

@@ -1,0 +1,6 @@
+build/vc15/
+public/libraries/
+third-party/expat/
+third-party/zlib/
+XMPCore/build/
+XMPFiles/build/
