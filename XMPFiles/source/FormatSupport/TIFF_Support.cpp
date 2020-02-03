@@ -353,6 +353,41 @@ bool TIFF_Manager::DecodeString ( const void * encodedPtr, size_t encodedLen, st
 }	// TIFF_Manager::DecodeString
 
 // =================================================================================================
+// TIFF_Manager::DecodeWindowsString
+// ==========================
+//
+// Convert a unicode string to UTF-8. 
+
+bool TIFF_Manager::DecodeWindowsString(const void* encodedPtr, size_t encodedLen, std::string* utf8Str) const
+{
+	utf8Str->erase();
+
+	try {
+
+		const UTF16Unit* utf16Ptr = (const UTF16Unit*)encodedPtr;
+		size_t utf16Len = encodedLen / 2;	// The number of UTF-16 storage units, not bytes.
+		if (utf16Len == 0) return false;
+		//if ((*utf16Ptr == 0xFEFF) || (*utf16Ptr == 0xFFFE)) {	// Check for an explicit BOM
+		//	isBigEndian = (*((XMP_Uns8*)utf16Ptr) == 0xFE);
+		//	utf16Ptr += 1;	// Don't translate the BOM.
+		//	utf16Len -= 1;
+		//	if (utf16Len == 0) 
+		//		return false;
+		//}
+		UTF16_to_UTF8(utf16Ptr, utf16Len, false, utf8Str);
+		return true;
+
+	}
+	catch (...) {
+		return false; // Ignore the tag if there are conversion errors.
+	}
+	
+
+	return false;	// ! Ignore all other encodings.
+
+}	// TIFF_Manager::DecodeWindowsString
+
+// =================================================================================================
 // UTF8_to_UTF16
 // =============
 
@@ -444,6 +479,29 @@ bool TIFF_Manager::EncodeString ( const std::string& utf8Str, XMP_Uns8 encoding,
 	return false;	// ! Should never get here.
 
 }	// TIFF_Manager::EncodeString
+
+// =================================================================================================
+// TIFF_Manager::EncodeWindowsString
+// ==========================
+//
+// Convert a utf8 string to unicode string.
+
+bool TIFF_Manager::EncodeWindowsString(const std::string& utf8Str, std::string* encodedStr) {
+
+	encodedStr->erase();
+
+	try {
+		UTF8_to_UTF16((const UTF8Unit*)utf8Str.c_str(), utf8Str.size(), false, encodedStr);
+		return true;
+	}
+	catch (...) {
+		return false; // Ignore the tag if there are conversion errors.
+	}
+
+
+	return false;	// ! Ignore all other encodings.
+
+}	// TIFF_Manager::DecodeWindowsString
 
 void TIFF_Manager::NotifyClient( XMP_ErrorSeverity severity, XMP_Error & error )
 {

@@ -101,11 +101,11 @@ static const TIFF_MappingToXMP sPrimaryIFDMappings[] = {	// A blank name indicat
 	{ /*   315 */ kTIFF_Artist,                    kTIFF_ASCIIType,       kAnyCount, kExport_Always,     "", "" },	// ! Has a special mapping.
 	{ /* 33432 */ kTIFF_Copyright,                 kTIFF_ASCIIType,       kAnyCount, kExport_Always,     "", "" },	// ! Has a special mapping.
 
-	{ /* 40091 */ kTIFF_XPTitle,				   kTIFF_ByteType,        kAnyCount,  kExport_Always,	 kXMP_NS_TIFF,	"XPTitle" },
-	{ /* 40092 */ kTIFF_XPComment,				   kTIFF_ByteType,        kAnyCount,  kExport_Always,	 kXMP_NS_TIFF,	"XPComment" },
-	{ /* 40093 */ kTIFF_XPAuthor,				   kTIFF_ByteType,        kAnyCount,  kExport_Always,	 kXMP_NS_TIFF,	"XPAuthor" },
-	{ /* 40094 */ kTIFF_XPKeywords,				   kTIFF_ByteType,        kAnyCount,  kExport_Always,	 kXMP_NS_TIFF,	"XPKeywords" },
-	{ /* 40095 */ kTIFF_XPSubject,				   kTIFF_ByteType,        kAnyCount,  kExport_Always,	 kXMP_NS_TIFF,	"XPSubject" },
+	{ /* 40091 */ kTIFF_XPTitle,				   kTIFF_ByteType,        kAnyCount,  kExport_Always,	 "", "" }, // ! Has a special mapping.
+	{ /* 40092 */ kTIFF_XPComment,				   kTIFF_ByteType,        kAnyCount,  kExport_Always,	 "", "" }, // ! Has a special mapping.
+	{ /* 40093 */ kTIFF_XPAuthor,				   kTIFF_ByteType,        kAnyCount,  kExport_Always,	 "", "" }, // ! Has a special mapping.
+	{ /* 40094 */ kTIFF_XPKeywords,				   kTIFF_ByteType,        kAnyCount,  kExport_Always,	 "", "" }, // ! Has a special mapping.
+	{ /* 40095 */ kTIFF_XPSubject,				   kTIFF_ByteType,        kAnyCount,  kExport_Always,	 "", "" }, // ! Has a special mapping.
 
 	{ 0xFFFF, 0, 0, 0 }	// ! Must end with sentinel.
 };
@@ -1427,6 +1427,35 @@ ImportTIFF_EncodedString ( const TIFF_Manager & tiff, const TIFF_Manager::TagInf
 
 }	// ImportTIFF_EncodedString
 
+
+// =================================================================================================
+// ImportTIFF_WindowsUnicodeString
+// ========================
+
+static void
+ImportTIFF_WindowsUnicodeString(const TIFF_Manager& tiff, const TIFF_Manager::TagInfo& tagInfo,
+	SXMPMeta* xmp, const char* xmpNS, const char* xmpProp)
+{
+	try {	// Don't let errors with one stop the others.
+
+		std::string strValue;
+
+		bool ok = tiff.DecodeWindowsString(tagInfo.dataPtr, tagInfo.dataLen, &strValue);
+		if (!ok) return;
+
+		TrimTrailingSpaces(&strValue);
+		if (strValue.empty()) return;
+
+		xmp->SetProperty(xmpNS, xmpProp, strValue.c_str());
+
+	}
+	catch (...) {
+		// Do nothing, let other imports proceed.
+		// ? Notify client?
+	}
+
+}	// ImportTIFF_EncodedString
+
 // =================================================================================================
 // ImportTIFF_Flash
 // ================
@@ -2210,6 +2239,32 @@ PhotoDataUtils::Import2WayExif ( const TIFF_Manager & exif, SXMPMeta * xmp, int 
 		ImportTIFF_DSDTable ( exif, tagInfo, xmp, kXMP_NS_EXIF, "DeviceSettingDescription" );
 	}
 
+	// Windows meta tags
+	found = exif.GetTag(kTIFF_PrimaryIFD, kTIFF_XPTitle, &tagInfo);
+	if (found) {
+		ImportTIFF_WindowsUnicodeString( exif, tagInfo, xmp, kXMP_NS_EXIF, "XPTitle" );
+	}
+
+	found = exif.GetTag(kTIFF_PrimaryIFD, kTIFF_XPComment, &tagInfo);
+	if (found) {
+		ImportTIFF_WindowsUnicodeString(exif, tagInfo, xmp, kXMP_NS_EXIF, "XPComment");
+	}
+
+	found = exif.GetTag(kTIFF_PrimaryIFD, kTIFF_XPAuthor, &tagInfo);
+	if (found) {
+		ImportTIFF_WindowsUnicodeString(exif, tagInfo, xmp, kXMP_NS_EXIF, "XPAuthor");
+	}
+
+	found = exif.GetTag(kTIFF_PrimaryIFD, kTIFF_XPKeywords, &tagInfo);
+	if (found) {
+		ImportTIFF_WindowsUnicodeString(exif, tagInfo, xmp, kXMP_NS_EXIF, "XPKeywords");
+	}
+
+	found = exif.GetTag(kTIFF_PrimaryIFD, kTIFF_XPSubject, &tagInfo);
+	if (found) {
+		ImportTIFF_WindowsUnicodeString(exif, tagInfo, xmp, kXMP_NS_EXIF, "XPSubject");
+	}
+
 	// --------------------------------------------------------
 	// Import the GPS Info IFD tags that have special mappings.
 
@@ -2929,6 +2984,38 @@ ExportTIFF_EncodedString ( const SXMPMeta & xmp, const char * xmpNS, const char 
 }	// ExportTIFF_EncodedString
 
 // =================================================================================================
+// ExportTIFF_WindowsEncodedString
+// ========================
+
+static void
+ExportTIFF_WindowsEncodedString(const SXMPMeta& xmp, const char* xmpNS, const char* xmpProp,
+	TIFF_Manager* tiff, XMP_Uns8 ifd, XMP_Uns16 id)
+{
+	try {	// Don't let errors with one stop the others.
+
+		std::string    xmpValue;
+		XMP_OptionBits xmpFlags;
+
+		bool foundXMP = xmp.GetProperty(xmpNS, xmpProp, &xmpValue, &xmpFlags);
+		if (!foundXMP) {
+			tiff->DeleteTag(ifd, id);
+			return;
+		}
+
+		std::string encodedStr;
+		if (tiff->EncodeWindowsString(xmpValue, &encodedStr)) {
+			tiff->SetTag(ifd, id, kTIFF_ByteType, (XMP_Uns32)encodedStr.size(), encodedStr.c_str());
+		}
+
+	}
+	catch (...) {
+		// Do nothing, let other exports proceed.
+		// ? Notify client?
+	}
+
+}	// ExportTIFF_EncodedString
+
+// =================================================================================================
 // ExportTIFF_GPSCoordinate
 // ========================
 //
@@ -3396,6 +3483,15 @@ PhotoDataUtils::ExportExif ( SXMPMeta * xmp, TIFF_Manager * exif )
 
 	ExportTIFF_Date ( *xmp, kXMP_NS_EXIF, "DateTimeOriginal", exif, kTIFF_DateTimeOriginal );
 	ExportTIFF_Date ( *xmp, kXMP_NS_XMP, "ModifyDate", exif, kTIFF_DateTime );
+
+	// Export Windows Tags
+
+	ExportTIFF_WindowsEncodedString ( *xmp, kXMP_NS_EXIF, "XPAuthor", exif, kTIFF_PrimaryIFD, kTIFF_XPAuthor );
+	ExportTIFF_WindowsEncodedString ( *xmp, kXMP_NS_EXIF, "XPComment", exif, kTIFF_PrimaryIFD, kTIFF_XPComment );
+	ExportTIFF_WindowsEncodedString ( *xmp, kXMP_NS_EXIF, "XPKeywords", exif, kTIFF_PrimaryIFD, kTIFF_XPKeywords );
+	ExportTIFF_WindowsEncodedString ( *xmp, kXMP_NS_EXIF, "XPSubject", exif, kTIFF_PrimaryIFD, kTIFF_XPSubject );
+	ExportTIFF_WindowsEncodedString ( *xmp, kXMP_NS_EXIF, "XPTitle", exif, kTIFF_PrimaryIFD, kTIFF_XPTitle );
+
 	
 	// Export the remaining TIFF, Exif, and GPS IFD tags.
 

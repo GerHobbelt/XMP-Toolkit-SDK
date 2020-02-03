@@ -626,7 +626,9 @@ public:
 	virtual void SetTag_EncodedString ( XMP_Uns8 ifd, XMP_Uns16 id, const std::string& utf8Str, XMP_Uns8 encoding ) = 0;
 
 	bool DecodeString ( const void * encodedPtr, size_t encodedLen, std::string* utf8Str ) const;
+	bool DecodeWindowsString(const void* encodedPtr, size_t encodedLen, std::string* utf8Str) const;
 	bool EncodeString ( const std::string& utf8Str, XMP_Uns8 encoding, std::string* encodedStr );
+	bool EncodeWindowsString(const std::string& utf8Str, std::string* encodedStr);
 
 	// ---------------------------------------------------------------------------------------------
 	// \c IsChanged returns true if a read-write stream has changes that need to be saved. This is
