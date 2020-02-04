@@ -2331,22 +2331,27 @@ static void Import3WayDateTime ( XMP_Uns16 exifTag, const TIFF_Manager & exif, c
 {
 	XMP_Uns8  iptcDS;
 	XMP_StringPtr xmpNS, xmpProp;
+	XMP_StringPtr exifNS, exifProp;
 	
 	if ( exifTag == kTIFF_DateTimeOriginal ) {
-		iptcDS  = kIPTC_DateCreated;
-		xmpNS   = kXMP_NS_Photoshop;
-		xmpProp = "DateCreated";
+		iptcDS		= kIPTC_DateCreated;
+		xmpNS		= kXMP_NS_Photoshop;
+		xmpProp		= "DateCreated";
+		exifNS		= kXMP_NS_EXIF;
+		exifProp	= "DateTimeOriginal";
 	} else if ( exifTag == kTIFF_DateTimeDigitized ) {
-		iptcDS  = kIPTC_DigitalCreateDate;
-		xmpNS   = kXMP_NS_XMP;
-		xmpProp = "CreateDate";
+		iptcDS		= kIPTC_DigitalCreateDate;
+		xmpNS		= kXMP_NS_XMP;
+		xmpProp		= "CreateDate";
+		exifNS		= kXMP_NS_EXIF;
+		exifProp	= "/*DateTimeDigitized*/";
 	} else {
 		XMP_Throw ( "Unrecognized dateID", kXMPErr_BadParam );
 	}
 
 	size_t iptcCount;
 	bool haveXMP, haveExif, haveIPTC;	// ! These are manipulated to simplify MWG-compliant logic.
-	std::string xmpValue, exifValue, iptcValue;
+	std::string xmpValue;
 	TIFF_Manager::TagInfo exifInfo;
 	IPTC_Manager::DataSetInfo iptcInfo;
 
@@ -2363,17 +2368,15 @@ static void Import3WayDateTime ( XMP_Uns16 exifTag, const TIFF_Manager & exif, c
 
 	} else if ( haveExif && (exifInfo.type == kTIFF_ASCIIType) ) {
 
-		// Only import the Exif form if the non-TZ information differs from the XMP.
-	
-		TIFF_FileWriter exifFromXMP;
-		TIFF_Manager::TagInfo infoFromXMP;
+		// Import the Exif form and update if it's different than information stored in XMP.
 
-		ExportTIFF_Date ( *xmp, xmpNS, xmpProp, &exifFromXMP, exifTag );
-		bool foundFromXMP = exifFromXMP.GetTag ( kTIFF_ExifIFD, exifTag, &infoFromXMP );
-
-		if ( (! foundFromXMP) || (exifInfo.dataLen != infoFromXMP.dataLen) ||
-			 (! XMP_LitNMatch ( (char*)exifInfo.dataPtr, (char*)infoFromXMP.dataPtr, exifInfo.dataLen )) ) {
+		if (haveXMP) {
+			XMP_DateTime xmpBin;
+			SXMPUtils::ConvertToDate ( xmpValue.c_str(), &xmpBin );
+			xmp->SetProperty_Date ( exifNS, exifProp, xmpBin, 0 );
+		} else {
 			ImportTIFF_Date ( exif, exifInfo, xmp, xmpNS, xmpProp );
+			ImportTIFF_Date ( exif, exifInfo, xmp, exifNS, exifProp );
 		}
 
 	}
