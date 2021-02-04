@@ -1,0 +1,4 @@
+.DS_Store
+third-party/expat/lib/
+third-party/zlib/*.c
+third-party/zlib/*.h
