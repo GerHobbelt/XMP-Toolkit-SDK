@@ -89,7 +89,7 @@ struct AVCHD_blkProgramInfo
 		XMP_Uns8	mAudioLanguageCode[4];
 	} mAudioStream;
 
-	// Pverlay bitmap stream.
+	// Overlay bitmap stream.
 	struct
 	{
 		XMP_Uns8	mPresent;
