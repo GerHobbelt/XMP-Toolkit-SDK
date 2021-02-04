@@ -1785,33 +1785,33 @@ static std::string BytesToHex ( const XMP_Uns8* inClipIDBytes, int inNumBytes )
 
 static std::string AVCHD_DateFieldToXMP ( XMP_Uns8 avchdTimeZone, const XMP_Uns8* avchdDateTime )
 {
-	const XMP_Uns8 daylightSavingsTime = ( avchdTimeZone >> 6 ) & 0x01;
-	const XMP_Uns8 timezoneSign = ( avchdTimeZone >> 5 ) & 0x01;
 	const XMP_Uns8 timezoneValue = ( avchdTimeZone >> 1 ) & 0x0F;
-	const XMP_Uns8 halfHourFlag = avchdTimeZone & 0x01;
-	int utcOffsetHours = 0;
-	unsigned int utcOffsetMinutes = 0;
-
-	// It's not entirely clear how to interpret the daylightSavingsTime flag from the documentation -- my best
-	// guess is that it should only be used if trying to display local time, not the UTC-relative time that
-	// XMP specifies.
-	if ( timezoneValue != 0xF ) {
-		utcOffsetHours = timezoneSign ? -timezoneValue : timezoneValue;
-		utcOffsetMinutes = 30 * halfHourFlag;
-	}
-
 	char dateBuff [26];
 
 	sprintf ( dateBuff,
-			  "%01d%01d%01d%01d-%01d%01d-%01d%01dT%01d%01d:%01d%01d:%01d%01d%+02d:%02d",
+			  "%01d%01d%01d%01d-%01d%01d-%01d%01dT%01d%01d:%01d%01d:%01d%01d",
 			  (avchdDateTime[0] >> 4), (avchdDateTime[0] & 0x0F),
 			  (avchdDateTime[1] >> 4), (avchdDateTime[1] & 0x0F),
 			  (avchdDateTime[2] >> 4), (avchdDateTime[2] & 0x0F),
 			  (avchdDateTime[3] >> 4), (avchdDateTime[3] & 0x0F),
 			  (avchdDateTime[4] >> 4), (avchdDateTime[4] & 0x0F),
 			  (avchdDateTime[5] >> 4), (avchdDateTime[5] & 0x0F),
-			  (avchdDateTime[6] >> 4), (avchdDateTime[6] & 0x0F),
-			  utcOffsetHours, utcOffsetMinutes );
+			  (avchdDateTime[6] >> 4), (avchdDateTime[6] & 0x0F));
+
+	if ( timezoneValue != 0xF ) {
+		const XMP_Uns8 timezoneSign = ( avchdTimeZone >> 5 ) & 0x01;
+		// It's not entirely clear how to interpret the daylightSavingsTime flag from the documentation -- my best
+		// guess is that it should only be used if trying to display local time, not the UTC-relative time that
+		// XMP specifies.
+		// const XMP_Uns8 daylightSavingsTime = ( avchdTimeZone >> 6 ) & 0x01;
+		const XMP_Uns8 halfHourFlag = avchdTimeZone & 0x01;
+		int utcOffsetHours = 0;
+		unsigned int utcOffsetMinutes = 0;
+
+		utcOffsetHours = timezoneSign ? -timezoneValue : timezoneValue;
+		utcOffsetMinutes = 30 * halfHourFlag;
+		sprintf ( &dateBuff[19], "%0+3d:%02d", utcOffsetHours, utcOffsetMinutes );
+	}
 
 	return std::string(dateBuff);
 }
