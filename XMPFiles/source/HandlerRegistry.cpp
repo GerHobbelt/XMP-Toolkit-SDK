@@ -28,6 +28,7 @@
 #endif
 
 #if EnableDynamicMediaHandlers
+	#include "XMPFiles/source/FileHandlers/AVCHD_Handler.hpp"
 	#include "XMPFiles/source/FileHandlers/AIFF_Handler.hpp"
 	#include "XMPFiles/source/FileHandlers/ASF_Handler.hpp"
 	#include "XMPFiles/source/FileHandlers/FLV_Handler.hpp"
@@ -129,6 +130,7 @@ void HandlerRegistry::initialize()
 	allOK &= this->registerFolderHandler ( kXMP_XDCAM_FAMFile, kXDCAMFAM_HandlerFlags, XDCAMFAM_CheckFormat, XDCAMFAM_MetaHandlerCTor );
 	allOK &= this->registerFolderHandler ( kXMP_XDCAM_SAMFile, kXDCAMSAM_HandlerFlags, XDCAMSAM_CheckFormat, XDCAMSAM_MetaHandlerCTor );
 	allOK &= this->registerFolderHandler ( kXMP_XDCAM_EXFile, kXDCAMEX_HandlerFlags, XDCAMEX_CheckFormat, XDCAMEX_MetaHandlerCTor );
+	allOK &= this->registerFolderHandler ( kXMP_AVCHDFile, kAVCHD_HandlerFlags, AVCHD_CheckFormat, AVCHD_MetaHandlerCTor );
 #endif
 
 	// ------------------------------------------------------------------------------------------
@@ -978,6 +980,8 @@ XMPFileHandlerInfo* HandlerRegistry::tryFolderHandlers( XMP_FileFormat format,
 
 	// Sony HDV  .../MyMovie/VIDEO/HVR/<file>.<ext> - check for VIDEO and HVR
 	if ( (gpName == "VIDEO") && (parentName == "HVR") ) return kXMP_SonyHDVFile;
+
+	if ( (gpName == "BDMV") && (parentName == "CLIPINF" || parentName == "PLAYLIST" || parentName == "STREAM") ) return kXMP_AVCHDFile;
 
 	return kXMP_UnknownFile;
 
