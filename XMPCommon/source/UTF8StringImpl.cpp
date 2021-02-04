@@ -169,7 +169,7 @@ namespace XMP_COMPONENT_INT_NAMESPACE {
 	}
 
 	int32 APICALL UTF8StringImpl::compare( sizet pos, sizet len, const char * buf, sizet count ) const {
-		if ( buf && (len > 0||len ==0) && (count > 0 || count==0) ) {
+		if ( buf && (len >= 0) && (count >= 0) ) {
 			sizet size = ValidatePosParameter( pos );
 			if ( count == npos )
 				return mString.compare( pos, len, buf );
@@ -180,7 +180,7 @@ namespace XMP_COMPONENT_INT_NAMESPACE {
 	}
 
 	int32 APICALL UTF8StringImpl::compare( sizet pos, sizet len, const spcIUTF8String & str, sizet strPos, sizet strLen ) const {
-		if ( str && (len > 0||len ==0) && (strLen > 0||strLen ==0) ) {
+		if ( str && (len >= 0) && (strLen >= 0) ) {
 			ValidatePosParameter( pos );
 			ValidateSrcPosParameter( str, strPos );
 			return mString.compare( pos, len, str->c_str() + strPos, strLen );
