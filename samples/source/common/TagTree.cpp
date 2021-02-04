@@ -183,7 +183,7 @@ void TagTree::digest(LFA_FileRef file,const std::string key /*=NULL*/,
 
 #endif
     delete[] out;
-	if (!returnValue) delete value; //if we own it, we delete it
+	if (!returnValue) delete[] value; //if we own it, we delete it
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
