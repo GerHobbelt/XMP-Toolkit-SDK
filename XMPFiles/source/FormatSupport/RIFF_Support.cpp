@@ -26,8 +26,9 @@
 #include "XMPFiles/source/FormatSupport/RIFF_Support.hpp"
 #include "XMPFiles/source/FormatSupport/Reconcile_Impl.hpp"
 
-
+#ifndef MIN
 #define MIN(a, b)       ((a) < (b) ? (a) : (b))
+#endif
 
 using namespace RIFF;
 namespace RIFF {
