@@ -1683,6 +1683,7 @@ static bool AVCHD_SetXMPMakeAndModel ( SXMPMeta& xmpObj, const AVCHD_blkClipExte
 					case 0x0490 : xmpValue = "AVCCAM Restorer";			break;
 					case 0x0491 : xmpValue = "AVCCAM Viewer";			break;
 					case 0x0492 : xmpValue = "AVCCAM Viewer for Mac";	break;
+					case 0x0501 : xmpValue = "DMC-G2";				break;
 					default :											break;
 				}
 
