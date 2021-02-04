@@ -2408,7 +2408,7 @@ void AVCHD_MetaHandler::UpdateFile ( bool doSafeUpdate )
 
 	XMP_IO* xmpFile = this->parent->ioRef;
 	XMP_Assert ( xmpFile != 0 );
-	XIO::ReplaceTextFile ( xmpFile, this->xmpPacket, (haveXMP & doSafeUpdate) );
+	XIO::ReplaceTextFile ( xmpFile, this->xmpPacket, (haveXMP && doSafeUpdate) );
 
 }	// AVCHD_MetaHandler::UpdateFile
 
