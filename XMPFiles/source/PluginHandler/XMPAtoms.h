@@ -85,7 +85,7 @@ enum
 
 #define XMPAtomNull emptyStr_K
 
-struct StringCompare : std::binary_function<const std::string &, const std::string &, bool>
+struct StringCompare //: std::binary_function<const std::string &, const std::string &, bool>
 {
 	bool operator() (const std::string & a, const std::string & b) const
 	{

@@ -69,6 +69,8 @@
 	#endif
 	#define XMP_AndroidBuild  0
 
+	#define NOMINMAX 
+
 #elif defined ( UNIX_ENV ) && !defined (ANDROID_ENV)
 
 	#if 0	// ! maybe someday - ! UNIX_ENV
