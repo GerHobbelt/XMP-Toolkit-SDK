@@ -1,3 +1,11 @@
+# XMP-Toolkit-SDK fork used by [Diffractor](https://diffractor.com/)
+
+Few changes from the original:
+- added vcxproj file 
+- POPM (rating) and TPE2 (albumArtist) reconciliations for MP3
+- windows tag support and other fixes from chebum
+- tweaks for C++ 17
+
 # XMP-Toolkit-SDK
 
 The XMP Toolkit allows you to integrate XMP functionality into your product or solution. It supports Macintosh, Windows, as well as UNIX and comes with samples, documentation, source code and scripts to generate project files. The XMP Toolkit is available under the BSD license. The specification is provided under the [XMP Specification Public Patent License](https://wwwimages2.adobe.com/content/dam/acom/en/devnet/xmp/pdfs/cs6/xmp_public_patent_license.pdf)
