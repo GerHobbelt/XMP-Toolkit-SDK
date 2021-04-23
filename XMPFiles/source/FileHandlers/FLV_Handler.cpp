@@ -199,7 +199,7 @@ static void GetTagInfo ( XMP_IO* fileRef, XMP_Uns64 tagPos, TagInfo * info )
 	fileRef->ReadAll ( buffer, 11 );
 
 	info->type = buffer[0];
-	info->time = GetUns24BE ( &buffer[4] ) || (buffer[7] << 24);
+	info->time = GetUns24BE ( &buffer[4] ) | (buffer[7] << 24);
 	info->dataSize = GetUns24BE ( &buffer[1] );
 
 }	// GetTagInfo
