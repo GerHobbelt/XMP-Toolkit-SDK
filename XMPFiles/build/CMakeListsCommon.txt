@@ -71,11 +71,13 @@ list (REMOVE_ITEM HEADERFILES_THIRDPARTY_ZLIB
 	)
 source_group("Header Files\\ThirdParty\\zlib" FILES ${HEADERFILES_THIRDPARTY_ZLIB})
 
+if(0)
 list (APPEND FILES_THIRDPARTY_EXPAT
 	${TP_EXPAT_PATH}/xmlparse.c
 	${TP_EXPAT_PATH}/xmlrole.c
 	${TP_EXPAT_PATH}/xmltok.c
 	)
+endif()
 list (APPEND FILES_THIRDPARTY_EXPAT ${RESOURCE_ROOT}/../../XMPCore/resource/${XMP_PLATFORM_SHORT}/expat_config.h)
 source_group("Source Files\\ThirdParty\\expat" FILES ${FILES_THIRDPARTY_EXPAT})
 
@@ -174,6 +176,7 @@ file (GLOB PUBLIC_XMPCORE_CLIENTGLUE_FILES ${XMPROOT_DIR}/public/include/XMPCore
 source_group("Source Files\\Public\\XMPCore" FILES ${PUBLIC_XMPCORE_CLIENTGLUE_FILES})
 endif()
 #endif()
+if(0)
 list (APPEND HEADERFILES_THIRDPARTY_ZLIB
 	${XMPROOT_DIR}/third-party/zlib/adler32.c
 	${XMPROOT_DIR}/third-party/zlib/compress.c
@@ -188,6 +191,7 @@ list (APPEND HEADERFILES_THIRDPARTY_ZLIB
 	${XMPROOT_DIR}/third-party/zlib/zutil.c
 	)
 source_group("Source Files\\ThirdParty\\zlib" FILES ${HEADERFILES_THIRDPARTY_ZLIB})
+endif()
 
 list(APPEND SOURCE_FILES
 	${INTERNAL_HEADER_COMMONCODE_NMDS}

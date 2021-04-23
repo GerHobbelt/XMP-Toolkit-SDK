@@ -53,8 +53,12 @@ else()
 	add_definitions(-DBUILDING_XMPCORE_AS_DYNAMIC=1)
 endif()
 
-set(TP_ZUID_PATH "${XMPROOT_DIR}/third-party/zuid/interfaces")
-set(TP_EXPAT_PATH "${PROJECT_ROOT}/../../third-party/expat/lib/")
+if (NOT DEFINED TP_ZUID_PATH)
+	set(TP_ZUID_PATH "${XMPROOT_DIR}/third-party/zuid/interfaces")
+endif()
+if (NOT DEFINED TP_EXPAT_PATH)
+	set(TP_EXPAT_PATH "${PROJECT_ROOT}/../../third-party/expat/lib/")
+endif()
 
 # ==============================================================================
 # Project specific config starts here

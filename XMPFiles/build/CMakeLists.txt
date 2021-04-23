@@ -47,8 +47,12 @@ set(XMP_THIS_PROJECT_RELATIVEPATH "../..")
 include(${CMAKE_CURRENT_SOURCE_DIR}/${XMP_THIS_PROJECT_RELATIVEPATH}/build/XMP_Config.cmake)
 
 
-set(TP_ZUID_PATH "${XMPROOT_DIR}/third-party/zuid/interfaces")
-set(TP_EXPAT_PATH "${PROJECT_ROOT}/../../third-party/expat/lib/")
+if (NOT DEFINED TP_ZUID_PATH)
+	set(TP_ZUID_PATH "${XMPROOT_DIR}/third-party/zuid/interfaces")
+endif()
+if (NOT DEFINED TP_EXPAT_PATH)
+	set(TP_EXPAT_PATH "${PROJECT_ROOT}/../../third-party/expat/lib/")
+endif()
 set(LIB_ADOBEXMP XMPCore)
 
 if(ANDROID)

@@ -20,7 +20,7 @@
 
 #include "XMPFiles/source/FormatSupport/SWF_Support.hpp"
 
-#include "third-party/zlib/zlib.h"
+#include "zlib.h"
 
 // =================================================================================================
 

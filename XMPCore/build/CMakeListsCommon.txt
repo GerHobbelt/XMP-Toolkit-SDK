@@ -87,6 +87,7 @@ file (GLOB CORECLASS_SOURCE_FILES ${SOURCE_ROOT}/XMP*.cpp)
 list (REMOVE_ITEM CORECLASS_SOURCE_FILES ${SOURCE_ROOT}/XMPCore_Impl.cpp)
 source_group("Source Files\\Core Classes" FILES ${CORECLASS_SOURCE_FILES})
 
+if(0)
 file (GLOB ZUID_SOURCE_FILES ${TP_ZUID_PATH}/*.cpp)
 list (APPEND THIRDPARTY_SOURCE_FILES
 	${TP_EXPAT_PATH}/xmlparse.c
@@ -98,6 +99,7 @@ if(WIN32)
 	list (APPEND THIRDPARTY_SOURCE_FILES ${RESOURCE_ROOT}/win/expat_config.h)
 else()
 	list (APPEND THIRDPARTY_SOURCE_FILES ${RESOURCE_ROOT}/${XMP_PLATFORM_SHORT}/expat_config.h)
+endif()
 endif()
 source_group("Source Files\\Third Party" FILES ${THIRDPARTY_SOURCE_FILES})
 
