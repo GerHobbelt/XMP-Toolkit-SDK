@@ -1,0 +1,14 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/intermediate
+*.user
+build/vc15/
+build/vc16/
+public/libraries/
+third-party/expat/
+third-party/zlib/
+XMPCore/build/
+XMPFiles/build/

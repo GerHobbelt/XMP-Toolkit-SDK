@@ -632,7 +632,8 @@ bool ID3v2Frame::getFrameValue ( XMP_Uns8 majorVersion, XMP_Uns32 logicalID, std
 	XMP_Int32 pos = 0;
 	XMP_Uns8 encByte = 0;
 	// WCOP does not have an encoding byte, for all others: use [0] as EncByte, advance pos
-	if ( logicalID != 0x57434F50 ) {
+	// and POPM diffractor
+	if ( logicalID != 0x57434F50 && logicalID != 0x504F504D) {
 		encByte = this->content[0];
 		pos++;
 	}
@@ -646,9 +647,17 @@ bool ID3v2Frame::getFrameValue ( XMP_Uns8 majorVersion, XMP_Uns32 logicalID, std
 		{
 			if ( commMode && (! advancePastCOMMDescriptor ( pos )) ) return false; // not a frame of interest!
 
-			char* localPtr  = &this->content[pos];
-			size_t localLen = this->contentSize - pos;
-			ReconcileUtils::Latin1ToUTF8 ( localPtr, localLen, utf8string );
+			const char* localPtr = &this->content[pos];
+			const size_t localLen = this->contentSize - pos;
+
+			if (logicalID == 0x504F504D) // POPM diffractor - take it raw
+			{
+				utf8string->assign(localPtr, localLen);
+			}
+			else
+			{
+				ReconcileUtils::Latin1ToUTF8(localPtr, localLen, utf8string);
+			}
 			break;
 
 		}

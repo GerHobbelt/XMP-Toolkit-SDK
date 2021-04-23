@@ -93,13 +93,20 @@ static const TIFF_MappingToXMP sPrimaryIFDMappings[] = {	// A blank name indicat
 	{ /*   319 */ kTIFF_PrimaryChromaticities,     kTIFF_RationalType,    6,         kExport_Never,      kXMP_NS_TIFF,  "PrimaryChromaticities" },
 	{ /*   531 */ kTIFF_YCbCrPositioning,          kTIFF_ShortType,       1,         kExport_Never,      kXMP_NS_TIFF,  "YCbCrPositioning" },
 	{ /*   532 */ kTIFF_ReferenceBlackWhite,       kTIFF_RationalType,    6,         kExport_Never,      kXMP_NS_TIFF,  "ReferenceBlackWhite" },
-	{ /*   306 */ kTIFF_DateTime,                  kTIFF_ASCIIType,       20,        kExport_Always,     "", "" },	// ! Has a special mapping.
+	{ /*   306 */ kTIFF_DateTime,                  kTIFF_ASCIIType,       20,        kExport_Always,     "", "" },	// ! Has a special mapping.	
 	{ /*   270 */ kTIFF_ImageDescription,          kTIFF_ASCIIType,       kAnyCount, kExport_Always,     "", "" },	// ! Has a special mapping.
 	{ /*   271 */ kTIFF_Make,                      kTIFF_ASCIIType,       kAnyCount, kExport_InjectOnly, kXMP_NS_TIFF,  "Make" },
 	{ /*   272 */ kTIFF_Model,                     kTIFF_ASCIIType,       kAnyCount, kExport_InjectOnly, kXMP_NS_TIFF,  "Model" },
 	{ /*   305 */ kTIFF_Software,                  kTIFF_ASCIIType,       kAnyCount, kExport_Always,     kXMP_NS_TIFF,  "Software" },	// Has alias to xmp:CreatorTool.
 	{ /*   315 */ kTIFF_Artist,                    kTIFF_ASCIIType,       kAnyCount, kExport_Always,     "", "" },	// ! Has a special mapping.
 	{ /* 33432 */ kTIFF_Copyright,                 kTIFF_ASCIIType,       kAnyCount, kExport_Always,     "", "" },	// ! Has a special mapping.
+
+	{ /* 40091 */ kTIFF_XPTitle,				   kTIFF_ByteType,        kAnyCount,  kExport_Always,	 "", "" }, // ! Has a special mapping.
+	{ /* 40092 */ kTIFF_XPComment,				   kTIFF_ByteType,        kAnyCount,  kExport_Always,	 "", "" }, // ! Has a special mapping.
+	{ /* 40093 */ kTIFF_XPAuthor,				   kTIFF_ByteType,        kAnyCount,  kExport_Always,	 "", "" }, // ! Has a special mapping.
+	{ /* 40094 */ kTIFF_XPKeywords,				   kTIFF_ByteType,        kAnyCount,  kExport_Always,	 "", "" }, // ! Has a special mapping.
+	{ /* 40095 */ kTIFF_XPSubject,				   kTIFF_ByteType,        kAnyCount,  kExport_Always,	 "", "" }, // ! Has a special mapping.
+
 	{ 0xFFFF, 0, 0, 0 }	// ! Must end with sentinel.
 };
 
@@ -173,6 +180,7 @@ static const TIFF_MappingToXMP sExifIFDMappings[] = {
 	{ /* 41994 */ kTIFF_Sharpness,                 kTIFF_ShortType,       1,         kExport_InjectOnly, kXMP_NS_EXIF,  "Sharpness" },
 	{ /* 41995 */ kTIFF_DeviceSettingDescription,  kTIFF_UndefinedType,   kAnyCount, kExport_InjectOnly, "", "" },	// ! Has a special mapping.
 	{ /* 41996 */ kTIFF_SubjectDistanceRange,      kTIFF_ShortType,       1,         kExport_InjectOnly, kXMP_NS_EXIF,  "SubjectDistanceRange" },
+	
 
 	{ 0xFFFF, 0, 0, 0 }	// ! Must end with sentinel.
 };
@@ -1419,6 +1427,35 @@ ImportTIFF_EncodedString ( const TIFF_Manager & tiff, const TIFF_Manager::TagInf
 
 }	// ImportTIFF_EncodedString
 
+
+// =================================================================================================
+// ImportTIFF_WindowsUnicodeString
+// ========================
+
+static void
+ImportTIFF_WindowsUnicodeString(const TIFF_Manager& tiff, const TIFF_Manager::TagInfo& tagInfo,
+	SXMPMeta* xmp, const char* xmpNS, const char* xmpProp)
+{
+	try {	// Don't let errors with one stop the others.
+
+		std::string strValue;
+
+		bool ok = tiff.DecodeWindowsString(tagInfo.dataPtr, tagInfo.dataLen, &strValue);
+		if (!ok) return;
+
+		TrimTrailingSpaces(&strValue);
+		if (strValue.empty()) return;
+
+		xmp->SetProperty(xmpNS, xmpProp, strValue.c_str());
+
+	}
+	catch (...) {
+		// Do nothing, let other imports proceed.
+		// ? Notify client?
+	}
+
+}	// ImportTIFF_EncodedString
+
 // =================================================================================================
 // ImportTIFF_Flash
 // ================
@@ -2122,6 +2159,12 @@ PhotoDataUtils::Import2WayExif ( const TIFF_Manager & exif, SXMPMeta * xmp, int 
 		}
 	}
 
+	// InteroperabilityIndex
+	found = exif.GetTag(kTIFF_InteropIFD, kTIFF_InteroperabilityIndex, &tagInfo);
+	if (found && (tagInfo.type == kTIFF_ASCIIType)) {
+		ImportSingleTIFF_ASCII(tagInfo, xmp, kXMP_NS_EXIF, "InteroperabilityIndex");
+	}
+
 	// 36864 ExifVersion is 4 "undefined" ASCII characters.
 	found = exif.GetTag ( kTIFF_ExifIFD, kTIFF_ExifVersion, &tagInfo );
 	if ( found && (tagInfo.type == kTIFF_UndefinedType) && (tagInfo.count == 4) ) {
@@ -2196,6 +2239,32 @@ PhotoDataUtils::Import2WayExif ( const TIFF_Manager & exif, SXMPMeta * xmp, int 
 		ImportTIFF_DSDTable ( exif, tagInfo, xmp, kXMP_NS_EXIF, "DeviceSettingDescription" );
 	}
 
+	// Windows meta tags
+	found = exif.GetTag(kTIFF_PrimaryIFD, kTIFF_XPTitle, &tagInfo);
+	if (found) {
+		ImportTIFF_WindowsUnicodeString( exif, tagInfo, xmp, kXMP_NS_EXIF, "XPTitle" );
+	}
+
+	found = exif.GetTag(kTIFF_PrimaryIFD, kTIFF_XPComment, &tagInfo);
+	if (found) {
+		ImportTIFF_WindowsUnicodeString(exif, tagInfo, xmp, kXMP_NS_EXIF, "XPComment");
+	}
+
+	found = exif.GetTag(kTIFF_PrimaryIFD, kTIFF_XPAuthor, &tagInfo);
+	if (found) {
+		ImportTIFF_WindowsUnicodeString(exif, tagInfo, xmp, kXMP_NS_EXIF, "XPAuthor");
+	}
+
+	found = exif.GetTag(kTIFF_PrimaryIFD, kTIFF_XPKeywords, &tagInfo);
+	if (found) {
+		ImportTIFF_WindowsUnicodeString(exif, tagInfo, xmp, kXMP_NS_EXIF, "XPKeywords");
+	}
+
+	found = exif.GetTag(kTIFF_PrimaryIFD, kTIFF_XPSubject, &tagInfo);
+	if (found) {
+		ImportTIFF_WindowsUnicodeString(exif, tagInfo, xmp, kXMP_NS_EXIF, "XPSubject");
+	}
+
 	// --------------------------------------------------------
 	// Import the GPS Info IFD tags that have special mappings.
 
@@ -2262,22 +2331,27 @@ static void Import3WayDateTime ( XMP_Uns16 exifTag, const TIFF_Manager & exif, c
 {
 	XMP_Uns8  iptcDS;
 	XMP_StringPtr xmpNS, xmpProp;
+	XMP_StringPtr exifNS, exifProp;
 	
 	if ( exifTag == kTIFF_DateTimeOriginal ) {
-		iptcDS  = kIPTC_DateCreated;
-		xmpNS   = kXMP_NS_Photoshop;
-		xmpProp = "DateCreated";
+		iptcDS		= kIPTC_DateCreated;
+		xmpNS		= kXMP_NS_Photoshop;
+		xmpProp		= "DateCreated";
+		exifNS		= kXMP_NS_EXIF;
+		exifProp	= "DateTimeOriginal";
 	} else if ( exifTag == kTIFF_DateTimeDigitized ) {
-		iptcDS  = kIPTC_DigitalCreateDate;
-		xmpNS   = kXMP_NS_XMP;
-		xmpProp = "CreateDate";
+		iptcDS		= kIPTC_DigitalCreateDate;
+		xmpNS		= kXMP_NS_XMP;
+		xmpProp		= "CreateDate";
+		exifNS		= kXMP_NS_EXIF;
+		exifProp	= "DateTimeDigitized";
 	} else {
 		XMP_Throw ( "Unrecognized dateID", kXMPErr_BadParam );
 	}
 
 	size_t iptcCount;
 	bool haveXMP, haveExif, haveIPTC;	// ! These are manipulated to simplify MWG-compliant logic.
-	std::string xmpValue, exifValue, iptcValue;
+	std::string xmpValue;
 	TIFF_Manager::TagInfo exifInfo;
 	IPTC_Manager::DataSetInfo iptcInfo;
 
@@ -2294,17 +2368,15 @@ static void Import3WayDateTime ( XMP_Uns16 exifTag, const TIFF_Manager & exif, c
 
 	} else if ( haveExif && (exifInfo.type == kTIFF_ASCIIType) ) {
 
-		// Only import the Exif form if the non-TZ information differs from the XMP.
-	
-		TIFF_FileWriter exifFromXMP;
-		TIFF_Manager::TagInfo infoFromXMP;
+		// Import the Exif form and update if it's different than information stored in XMP.
 
-		ExportTIFF_Date ( *xmp, xmpNS, xmpProp, &exifFromXMP, exifTag );
-		bool foundFromXMP = exifFromXMP.GetTag ( kTIFF_ExifIFD, exifTag, &infoFromXMP );
-
-		if ( (! foundFromXMP) || (exifInfo.dataLen != infoFromXMP.dataLen) ||
-			 (! XMP_LitNMatch ( (char*)exifInfo.dataPtr, (char*)infoFromXMP.dataPtr, exifInfo.dataLen )) ) {
+		if (haveXMP) {
+			XMP_DateTime xmpBin;
+			SXMPUtils::ConvertToDate ( xmpValue.c_str(), &xmpBin );
+			xmp->SetProperty_Date ( exifNS, exifProp, xmpBin, 0 );
+		} else {
 			ImportTIFF_Date ( exif, exifInfo, xmp, xmpNS, xmpProp );
+			ImportTIFF_Date ( exif, exifInfo, xmp, exifNS, exifProp );
 		}
 
 	}
@@ -2565,7 +2637,7 @@ ExportArrayTIFF ( TIFF_Manager * tiff, XMP_Uns8 ifd, const TIFF_MappingToXMP & m
 {
 	XMP_Assert ( (mapInfo.count != 1) && (mapInfo.type != kTIFF_ASCIIType) );
 	XMP_Assert ( mapInfo.name[0] != 0 );	// Must be a standard mapping.
-	XMP_Assert ( (mapInfo.type == kTIFF_ShortType) || (mapInfo.type == kTIFF_RationalType) );
+	XMP_Assert ( (mapInfo.type == kTIFF_ShortType) || (mapInfo.type == kTIFF_RationalType) || (mapInfo.type == kTIFF_ByteType) );
 	XMP_Assert ( xmp.DoesPropertyExist ( xmpNS, xmpArray ) );
 	
 	size_t arraySize = xmp.CountArrayItems ( xmpNS, xmpArray );
@@ -2613,6 +2685,25 @@ ExportArrayTIFF ( TIFF_Manager * tiff, XMP_Uns8 ifd, const TIFF_MappingToXMP & m
 		}
 	
 		tiff->SetTag ( ifd, mapInfo.id, kTIFF_RationalType, (XMP_Uns32)arraySize, &rationalVector[0] );
+
+	}
+	else if (mapInfo.type == kTIFF_ByteType) {
+
+		std::vector<XMP_Uns8> byteVector;
+		byteVector.assign(arraySize, 0);
+		XMP_Uns8* bytePtr = (XMP_Uns8*)&byteVector[0];
+
+		std::string itemPath;
+		XMP_Int32 int32;
+		XMP_Uns8 uns8;
+		for (size_t i = 1; i <= arraySize; ++i, ++bytePtr) {
+			SXMPUtils::ComposeArrayItemPath(xmpNS, xmpArray, (XMP_Index)i, &itemPath);
+			xmp.GetProperty_Int(xmpNS, itemPath.c_str(), &int32, 0);
+			uns8 = (XMP_Uns8)int32;			
+			*bytePtr = uns8;
+		}
+
+		tiff->SetTag(ifd, mapInfo.id, kTIFF_ByteType, (XMP_Uns32)arraySize, &byteVector[0]);
 
 	}
 
@@ -2889,6 +2980,38 @@ ExportTIFF_EncodedString ( const SXMPMeta & xmp, const char * xmpNS, const char 
 		tiff->SetTag_EncodedString ( ifd, id, xmpValue.c_str(), encoding );
 
 	} catch ( ... ) {
+		// Do nothing, let other exports proceed.
+		// ? Notify client?
+	}
+
+}	// ExportTIFF_EncodedString
+
+// =================================================================================================
+// ExportTIFF_WindowsEncodedString
+// ========================
+
+static void
+ExportTIFF_WindowsEncodedString(const SXMPMeta& xmp, const char* xmpNS, const char* xmpProp,
+	TIFF_Manager* tiff, XMP_Uns8 ifd, XMP_Uns16 id)
+{
+	try {	// Don't let errors with one stop the others.
+
+		std::string    xmpValue;
+		XMP_OptionBits xmpFlags;
+
+		bool foundXMP = xmp.GetProperty(xmpNS, xmpProp, &xmpValue, &xmpFlags);
+		if (!foundXMP) {
+			tiff->DeleteTag(ifd, id);
+			return;
+		}
+
+		std::string encodedStr;
+		if (tiff->EncodeWindowsString(xmpValue, &encodedStr)) {
+			tiff->SetTag(ifd, id, kTIFF_ByteType, (XMP_Uns32)encodedStr.size(), encodedStr.c_str());
+		}
+
+	}
+	catch (...) {
 		// Do nothing, let other exports proceed.
 		// ? Notify client?
 	}
@@ -3363,13 +3486,22 @@ PhotoDataUtils::ExportExif ( SXMPMeta * xmp, TIFF_Manager * exif )
 
 	ExportTIFF_Date ( *xmp, kXMP_NS_EXIF, "DateTimeOriginal", exif, kTIFF_DateTimeOriginal );
 	ExportTIFF_Date ( *xmp, kXMP_NS_XMP, "ModifyDate", exif, kTIFF_DateTime );
+
+	// Export Windows Tags
+
+	ExportTIFF_WindowsEncodedString ( *xmp, kXMP_NS_EXIF, "XPAuthor", exif, kTIFF_PrimaryIFD, kTIFF_XPAuthor );
+	ExportTIFF_WindowsEncodedString ( *xmp, kXMP_NS_EXIF, "XPComment", exif, kTIFF_PrimaryIFD, kTIFF_XPComment );
+	ExportTIFF_WindowsEncodedString ( *xmp, kXMP_NS_EXIF, "XPKeywords", exif, kTIFF_PrimaryIFD, kTIFF_XPKeywords );
+	ExportTIFF_WindowsEncodedString ( *xmp, kXMP_NS_EXIF, "XPSubject", exif, kTIFF_PrimaryIFD, kTIFF_XPSubject );
+	ExportTIFF_WindowsEncodedString ( *xmp, kXMP_NS_EXIF, "XPTitle", exif, kTIFF_PrimaryIFD, kTIFF_XPTitle );
+
 	
 	// Export the remaining TIFF, Exif, and GPS IFD tags.
 
 	ExportTIFF_ArrayASCII ( *xmp, kXMP_NS_DC, "creator", exif, kTIFF_PrimaryIFD, kTIFF_Artist );
 
 	ExportTIFF_LocTextASCII ( *xmp, kXMP_NS_DC, "rights", exif, kTIFF_PrimaryIFD, kTIFF_Copyright );
-		
+
 	haveXMP = xmp->GetProperty ( kXMP_NS_EXIF, "ExifVersion", &xmpValue, 0 );
 	if ( haveXMP && (xmpValue.size() == 4) && (! exif->GetTag ( kTIFF_ExifIFD, kTIFF_ExifVersion, 0 )) ) {
 		// 36864 ExifVersion is 4 "undefined" ASCII characters.
