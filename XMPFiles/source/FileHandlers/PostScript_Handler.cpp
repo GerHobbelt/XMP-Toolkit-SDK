@@ -513,7 +513,7 @@ bool PostScript_MetaHandler::ExtractContainsXMPHint(IOBuffer &ioBuf,XMP_Int64 co
 // PostScript_MetaHandler::ExtractDocInfoDict
 // ==============================================
 //
-// Function extracts the the value of DocInfo Dictionary.The keys that are looked in the dictionary
+// Function extracts the value of DocInfo Dictionary. The keys that are looked in the dictionary
 //	are Creator, CreationDate, ModDate, Author, Title, Subject and Keywords.Other keys for the 
 //	Dictionary are ignored
 bool PostScript_MetaHandler::ExtractDocInfoDict(IOBuffer &ioBuf)

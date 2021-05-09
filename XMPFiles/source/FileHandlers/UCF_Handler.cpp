@@ -124,7 +124,7 @@ bool UCF_CheckFormat (  XMP_FileFormat format,
 	if (
 		XMP_LitMatch( mimetype, "application/vnd.adobe.xfl"    ) ||  //Flash Diesel team
 		XMP_LitMatch( mimetype, "application/vnd.adobe.xfl+zip") ||  //Flash Diesel team
-		XMP_LitMatch( mimetype, "application/vnd.adobe.x-mars" ) ||  //Mars plugin(labs only), Acrobat8
+		XMP_LitMatch( mimetype, "application/vnd.adobe.x-mars" ) ||  //Mars plugin(labs only), Acrobat 8
 		XMP_LitMatch( mimetype, "application/vnd.adobe.pdfxml" ) ||  //Mars plugin(labs only), Acrobat 9
 		XMP_LitMatch( mimetype, "vnd.adobe.x-asnd"             ) ||  //Adobe Sound Document (Soundbooth Team)
 		XMP_LitMatch( mimetype, "application/vnd.adobe.indesign-idml-package" ) || //inCopy (inDesign) IDML Document
