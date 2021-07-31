@@ -98,7 +98,7 @@ enum {	// Constants for the type field of a tag, as defined by TIFF.
 };
 
 static const size_t kTIFF_TypeSizes[]    = { 0, 1, 1, 2, 4, 8, 1, 1, 2, 4, 8, 4, 8, 4 };
-
+//Fixing CTECHXMP-4170441 and CTECHXMP-4170530
 static const bool kTIFF_IsIntegerType[]  = { 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0 ,0 };
 static const bool kTIFF_IsRationalType[] = { 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0 ,0 };
 static const bool kTIFF_IsFloatType[]    = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 ,0 };
@@ -542,7 +542,6 @@ public:
 	bool IsNativeEndian() const { return this->nativeEndian; };
 	bool IsCheckTagLength () const { return this->checkTagLength; }
 
-
 	// ---------------------------------------------------------------------------------------------
 	// The TIFF_Manager only keeps explicit knowledge of up to 4 IFDs:
 	// - The primary image IFD, also known as the 0th IFD. This must be present.
@@ -588,7 +587,6 @@ public:
 
 	virtual bool GetTag_Integer ( XMP_Uns8 ifd, XMP_Uns16 id, XMP_Uns32* data ) const = 0;
 	virtual XMP_Uns32 GetTiffLength() const = 0;
-
 	virtual XMP_Uns8 *GetTiffStream() const = 0;
 
 	void SetTag_Integer ( XMP_Uns8 ifd, XMP_Uns16 id, XMP_Uns32 data );
@@ -769,7 +767,6 @@ public:
 
 	bool GetTag_EncodedString ( XMP_Uns8 ifd, XMP_Uns16 id, std::string* utf8Str ) const;
 	XMP_Uns32 GetTiffLength() const { return tiffLength; }
-
 	XMP_Uns8 *GetTiffStream() const { return tiffStream; }
 
 	void SetTag_EncodedString ( XMP_Uns8 ifd, XMP_Uns16 id, const std::string& utf8Str, XMP_Uns8 encoding ) { NotAppropriate(); };
@@ -883,7 +880,6 @@ public:
 
 	bool GetTag_EncodedString ( XMP_Uns8 ifd, XMP_Uns16 id, std::string* utf8Str ) const;
 	XMP_Uns32 GetTiffLength() const { return tiffLength; }
-
 	XMP_Uns8 *GetTiffStream() const { return memStream; }
 
 	void SetTag_EncodedString ( XMP_Uns8 ifd, XMP_Uns16 id, const std::string& utf8Str, XMP_Uns8 encoding );
