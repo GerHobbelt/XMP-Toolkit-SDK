@@ -213,7 +213,14 @@ XMP_Bool SVG_Adapter::ParseBufferNoThrow( const void * buffer, size_t length, bo
 		length = 1;
 	}
 
-	status = XML_Parse( this->parser, ( const char * ) buffer, static_cast< XMP_StringLen >( length ), last );
+	try
+	{
+		status = XML_Parse(this->parser, (const char *)buffer, static_cast<XMP_StringLen>(length), last);
+	}
+	catch (XMP_Error &e)
+	{
+		return false; //Don't let one failure abort checking other file formats , this api is called only from checkFileFormat
+	}
 
 #if BanAllEntityUsage
 	if ( this->isAborted ) {
@@ -235,7 +242,8 @@ static void ParseFullNS( XMP_StringPtr fullName, string & NS, string &localName 
 {
 	// Expat delivers the full name as a catenation of namespace URI, separator, and local name.
 	size_t sepPos = strlen( fullName );
-	if(!sepPos) return; //Throw?
+	if (!sepPos)
+		return; //Throw?
 	for ( --sepPos; sepPos > 0; --sepPos ) {
 		if ( fullName[ sepPos ] == FullNameSeparator ) break;
 	}
