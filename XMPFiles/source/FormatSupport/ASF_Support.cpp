@@ -4,9 +4,7 @@
 // All Rights Reserved
 //
 // NOTICE: Adobe permits you to use, modify, and distribute this file in accordance with the terms
-// of the Adobe license agreement accompanying it. If you have received this file from a source other 
-// than Adobe, then your use, modification, or distribution of it requires the prior written permission
-// of Adobe.
+// of the Adobe license agreement accompanying it. 
 // =================================================================================================
 
 #include "public/include/XMP_Environment.h"	// ! XMP_Environment.h must be the first included header.
@@ -150,13 +148,19 @@ bool ASF_Support::ReadHeaderObject ( XMP_IO* fileRef, ObjectState& inOutObjectSt
 		XMP_Uns32 numberOfHeaders = GetUns32LE ( &buffer[24] );
 		ASF_ObjectBase objectBase;
 
-		while ( read < newObject.len ) {
+		while (read < newObject.len && numberOfHeaders > 0)
+		{
 
 			fileRef->Seek ( pos, kXMP_SeekFromStart );
 			if ( kASF_ObjectBaseLen != fileRef->Read ( &objectBase, kASF_ObjectBaseLen, true ) ) break;
 
 			fileRef->Seek ( pos, kXMP_SeekFromStart );
 			objectBase.size = GetUns64LE ( &objectBase.size );
+
+			if (XMP_Uns32(objectBase.size) <= 0) /* as ASF_ObjectBase has size in XMP_Uns64 , XMP_Uns32 would give 0 for very large files exceeding UINT32_MAX */
+			{
+				XMP_Throw("Failure reading ASF header object", kXMPErr_InternalFailure);
+			}
 
 			if ( IsEqualGUID ( ASF_File_Properties_Object, objectBase.guid) && (objectBase.size >= 104 ) ) {
 
@@ -228,7 +232,7 @@ bool ASF_Support::ReadHeaderObject ( XMP_IO* fileRef, ObjectState& inOutObjectSt
 				XMP_Uns32 fieldPos = 28;
 
 				// copyright URL is 3. element with variable size
-				for ( int i = 1; i <= 3 ; ++i ) {
+				for ( int i = 1; i <= 3 && fieldPos < buffer.size() ; ++i ) { 
 					XMP_Uns32 len = GetUns32LE ( &buffer[fieldPos] );
 					if ( i == 3 ) {
 						std::string copyrightURLStr = buffer.substr ( fieldPos + 4, len );
@@ -276,8 +280,8 @@ bool ASF_Support::ReadHeaderObject ( XMP_IO* fileRef, ObjectState& inOutObjectSt
 
 			pos += objectBase.size;
 			read += objectBase.size;
+			numberOfHeaders--;
 		}
-
 	} catch ( ... ) {
 
 		return false;
@@ -328,7 +332,7 @@ bool ASF_Support::WriteHeaderObject ( XMP_IO* sourceRef, XMP_IO* destRef, const 
 
 		header.append ( buffer.c_str(), bufferSize );
 
-		while ( read < object.len ) {
+		while ( read < object.len && numberOfHeaders > 0 ) {
 
 			sourceRef->Seek ( pos, kXMP_SeekFromStart );
 			if ( kASF_ObjectBaseLen != sourceRef->Read ( &objectBase, kASF_ObjectBaseLen, true ) ) break;
@@ -503,7 +507,7 @@ bool ASF_Support::WriteHeaderObject ( XMP_IO* sourceRef, XMP_IO* destRef, const 
 
 			pos += objectBase.size;
 			read += objectBase.size;
-
+			numberOfHeaders--;
 			writtenObjects ++;
 
 		}

@@ -4,9 +4,7 @@
 // All Rights Reserved
 //
 // NOTICE: Adobe permits you to use, modify, and distribute this file in accordance with the terms
-// of the Adobe license agreement accompanying it. If you have received this file from a source other 
-// than Adobe, then your use, modification, or distribution of it requires the prior written permission
-// of Adobe.
+// of the Adobe license agreement accompanying it. 
 // =================================================================================================
 
 #include "public/include/XMP_Environment.h"	// ! Must be the first #include!
@@ -1482,7 +1480,11 @@ XMPFiles::GetXMP ( SXMPMeta *       xmpObj /* = 0 */,
 	 */
 	
 	if(! this->handler->processedXMP && !xmpObj && !(this->handler->xmpPacket.empty()) && packetInfo)
-	{
+	{  
+		/*CTECHXMP-4170329: xmppacket and xmpPacketLen will only be populated if client has explicitly requested for xmp packet*/
+		if ( xmpPacket != 0 ) *xmpPacket = this->handler->xmpPacket.c_str();
+		if ( xmpPacketLen != 0 ) *xmpPacketLen = (XMP_StringLen)this->handler->xmpPacket.size();
+		
 		SetClientPacketInfo(packetInfo, this->handler->packetInfo,
 			this->handler->xmpPacket, this->handler->needsUpdate );
 		return true;

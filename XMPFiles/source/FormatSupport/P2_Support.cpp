@@ -5,9 +5,7 @@
 // All Rights Reserved
 //
 // NOTICE: Adobe permits you to use, modify, and distribute this file in accordance with the terms
-// of the Adobe license agreement accompanying it. If you have received this file from a source other 
-// than Adobe, then your use, modification, or distribution of it requires the prior written permission
-// of Adobe.
+// of the Adobe license agreement accompanying it. 
 // =================================================================================================
 
 #include "public/include/XMP_Environment.h"	// ! XMP_Environment.h must be the first included header.
@@ -122,7 +120,10 @@ void P2_Clip::CacheClipContent()
 {
 	if (headContentCached) return;
 	headContentCached = true;
-	XMP_StringPtr p2NameSpace=GetP2RootNode()->ns.c_str();
+	XML_NodePtr p2RootNode = GetP2RootNode();
+	if( p2RootNode == 0 ) return;
+	XMP_StringPtr p2NameSpace = p2RootNode->ns.c_str();
+
 	p2ClipContent = GetP2RootNode()->GetNamedElement ( p2NameSpace, "ClipContent" );
 	if ( p2ClipContent == 0 )  return;
 	XML_NodePtr  p2node;
@@ -150,7 +151,7 @@ void P2_Clip::CacheClipContent()
 		p2Offset= p2node->GetNamedElement ( p2NameSpace, "GlobalShotID" );
 		GetElementLocation(p2Offset,headContent.shotId );
 		XML_NodePtr p2connection= p2node->GetNamedElement ( p2NameSpace, "Connection" );
-		if ( p2node != 0 )
+		if ( p2connection != 0 )
 		{
 			p2node= p2connection->GetNamedElement ( p2NameSpace, "Top" );
 			if ( p2node != 0 )
@@ -377,7 +378,9 @@ void P2_SpannedClip::CreateDigest ( std::string * digestStr )
 	digestStr->erase();
 	if ( this->headContent.clipMetadata == 0 ) return;	// Bail if we don't have any legacy XML.
 
-	XMP_StringPtr p2NS = this->GetP2RootNode()->ns.c_str();
+	XML_NodePtr p2RootNode = this->GetP2RootNode(); // Return if there is no root node.
+	if( p2RootNode == 0 ) return;
+	XMP_StringPtr p2NS = p2RootNode->ns.c_str();
 	XML_NodePtr legacyContext;
 	MD5_CTX    md5Context;
 	unsigned char digestBin [16];

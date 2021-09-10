@@ -4,9 +4,7 @@
 // All Rights Reserved
 //
 // NOTICE: Adobe permits you to use, modify, and distribute this file in accordance with the terms
-// of the Adobe license agreement accompanying it. If you have received this file from a source other 
-// than Adobe, then your use, modification, or distribution of it requires the prior written permission
-// of Adobe.
+// of the Adobe license agreement accompanying it. 
 // ===============================================================================================
 
 #include "public/include/XMP_Environment.h"	// ! XMP_Environment.h must be the first included header.
@@ -490,6 +488,9 @@ void UCF_MetaHandler::CacheFileData()
 					}
 
 					have = CHUNK - strm.avail_out;
+					if ((bytesWritten + have) > sizeUncompressed){
+						XMP_Throw("UCF Bad XMP block", kXMPErr_BadBlockFormat);
+					}
 					memcpy( (unsigned char*) packetStr + bytesWritten , out , have );
 					bytesWritten += have;
 
@@ -551,7 +552,6 @@ void UCF_MetaHandler::UpdateFile ( bool doSafeUpdate )
 	uncomprPacketLen = (XMP_StringLen) xmpPacket.size();
 	finalPacketStr = uncomprPacketStr;		// will be overriden if compressedXMP==true
 	finalPacketLen = uncomprPacketLen;
-	std::string compressedPacket;	// moot if non-compressed, still here for scope reasons (having to keep a .c_str() alive)
 
 	if ( !x ) // if new XMP...
 	{
@@ -588,6 +588,9 @@ void UCF_MetaHandler::UpdateFile ( bool doSafeUpdate )
 		unsigned int have;
 		z_stream strm;
 		unsigned char out[CHUNK];
+		/* initilalisation for fix to CTECHXMP-4170441*/
+		strm.total_out = 0;
+		strm.total_in = 0;
 
 		/* allocate deflate state */
 		strm.zalloc = Z_NULL; strm.zfree = Z_NULL; strm.opaque = Z_NULL;

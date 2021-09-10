@@ -4,9 +4,7 @@
 // All Rights Reserved
 //
 // NOTICE: Adobe permits you to use, modify, and distribute this file in accordance with the terms
-// of the Adobe license agreement accompanying it. If you have received this file from a source other 
-// than Adobe, then your use, modification, or distribution of it requires the prior written permission
-// of Adobe.
+// of the Adobe license agreement accompanying it. 
 // =================================================================================================
 
 #include "public/include/XMP_Environment.h"	// ! XMP_Environment.h must be the first included header.
@@ -141,6 +139,7 @@ void SWF_MetaHandler::CacheFileData() {
 	
 	// Look for the FileAttributes and Metadata tags.
 	
+	if(this->expandedSize <= SWF_IO::HeaderPrefixSize ) return; // Throw?
 	this->firstTagOffset = SWF_IO::FileHeaderSize ( this->expandedSWF[SWF_IO::HeaderPrefixSize] );
 	
 	XMP_Uns32 currOffset = this->firstTagOffset;
@@ -237,6 +236,9 @@ void SWF_MetaHandler::UpdateFile ( bool doSafeUpdate )
 		PutUns16LE ( ((SWF_IO::FileAttributesTagID << 6) | 4), &buffer[0] );
 		PutUns32LE ( SWF_IO::HasMetadataMask, &buffer[2] );
 		
+		if(this->expandedSWF.size() < this->firstTagOffset ){
+                     XMP_Throw ( "Index not valid.Invalid SWF, can't update.", kXMPErr_BadIndex );
+                 }
 		this->expandedSWF.insert ( (this->expandedSWF.begin() + this->firstTagOffset), 6, 0 );
 		memcpy ( &this->expandedSWF[this->firstTagOffset], &buffer[0], 6 );
 
@@ -270,6 +272,9 @@ void SWF_MetaHandler::UpdateFile ( bool doSafeUpdate )
 				this->metadataTag.tagOffset += attrTagLength;	// The FileAttributes tag will become in front.
 			}
 			
+			if(this->expandedSWF.size() < this->firstTagOffset ){
+                             XMP_Throw ( "Index not valid.Invalid SWF, can't update.", kXMPErr_BadIndex );
+                        }
 			this->expandedSWF.insert ( (this->expandedSWF.begin() + this->firstTagOffset), attrTagLength, 0 );
 			memcpy ( &this->expandedSWF[this->firstTagOffset], &attrTag[0], attrTagLength );
 			
@@ -300,6 +305,9 @@ void SWF_MetaHandler::UpdateFile ( bool doSafeUpdate )
 	this->metadataTag.contentLength = (XMP_Uns32)this->xmpPacket.size();
 
 	XMP_Uns32 newMetaLength = 6 + this->metadataTag.contentLength;	// Always use a long tag header.
+	if(this->expandedSWF.size() < this->metadataTag.tagOffset ){
+             XMP_Throw ( "Index not valid.Invalid SWF, can't update.", kXMPErr_BadIndex );
+	}
 	this->expandedSWF.insert ( (this->expandedSWF.begin() + this->metadataTag.tagOffset), newMetaLength, 0 );
 
 	PutUns16LE ( ((SWF_IO::MetadataTagID << 6) | SWF_IO::TagLengthMask), &this->expandedSWF[this->metadataTag.tagOffset] );

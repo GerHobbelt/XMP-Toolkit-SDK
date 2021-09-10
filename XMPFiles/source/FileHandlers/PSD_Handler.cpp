@@ -4,9 +4,7 @@
 // All Rights Reserved
 //
 // NOTICE: Adobe permits you to use, modify, and distribute this file in accordance with the terms
-// of the Adobe license agreement accompanying it. If you have received this file from a source other 
-// than Adobe, then your use, modification, or distribution of it requires the prior written permission
-// of Adobe.
+// of the Adobe license agreement accompanying it. 
 // =================================================================================================
 
 #include "public/include/XMP_Environment.h"	// ! This must be the first include.
@@ -142,7 +140,13 @@ void PSD_MetaHandler::CacheFileData()
 
 	cmLen = GetUns32BE ( &psdHeader[26] );
 
-	XMP_Int64 psirOrigin = 26 + 4 + cmLen;
+	XMP_Int64 psirOrigin = 26 + 4 + static_cast<XMP_Int64>(cmLen);
+	XMP_Int64 fileLength = fileRef->Length();
+
+	if (psirOrigin > fileLength)
+	{
+		XMP_Throw("Invalid PSD chunk length", kXMPErr_BadPSD);
+	}
 
 	filePos = fileRef->Seek ( psirOrigin, kXMP_SeekFromStart  );
 	if ( filePos !=  psirOrigin ) return;	// Throw?
@@ -153,7 +157,9 @@ void PSD_MetaHandler::CacheFileData()
 	this->psirMgr.ParseFileResources ( fileRef, psirLen );
 
 	PSIR_Manager::ImgRsrcInfo xmpInfo;
-	bool found = this->psirMgr.GetImgRsrc ( kPSIR_XMP, &xmpInfo );
+	bool found = this->psirMgr.GetImgRsrc(kPSIR_XMP, &xmpInfo);
+	if (psirLen < xmpInfo.dataLen)
+		return;
 
 	if ( found ) {
 

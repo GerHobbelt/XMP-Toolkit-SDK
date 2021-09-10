@@ -4,9 +4,7 @@
 // All Rights Reserved
 //
 // NOTICE: Adobe permits you to use, modify, and distribute this file in accordance with the terms
-// of the Adobe license agreement accompanying it. If you have received this file from a source other 
-// than Adobe, then your use, modification, or distribution of it requires the prior written permission
-// of Adobe.
+// of the Adobe license agreement accompanying it. 
 // =================================================================================================
 
 #include "public/include/XMP_Environment.h"
@@ -323,12 +321,15 @@ void WXMPFiles_GetXMP_1 ( XMPFilesRef      xmpObjRef,
 		StartPerfCheck ( kAPIPerf_GetXMP, "" );
 
 		bool hasXMP = false;
-		XMP_StringPtr packetStr;
-		XMP_StringLen packetLen;
-
-		if ( xmpRef == 0 ) {
+		XMP_StringPtr packetStr = NULL;
+		XMP_StringLen packetLen = 0;
+		/*Adding check to handle case where a client might not send XMPMetaRef but still want xmp packet in return. eg. CTECHXMP-4170329*/
+		if ( xmpRef == 0  && clientPacket != 0 ) {
 			hasXMP = thiz->GetXMP ( 0, &packetStr, &packetLen, packetInfo );
-		} else {
+		} else if ( xmpRef == 0 && clientPacket == 0 ) {
+			hasXMP = thiz->GetXMP( 0, 0, 0, packetInfo );
+		}
+		else {
 			SXMPMeta xmpObj ( xmpRef );
 			hasXMP = thiz->GetXMP ( &xmpObj, &packetStr, &packetLen, packetInfo );
 		}

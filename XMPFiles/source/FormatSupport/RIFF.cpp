@@ -4,9 +4,7 @@
 // All Rights Reserved
 //
 // NOTICE: Adobe permits you to use, modify, and distribute this file in accordance with the terms
-// of the Adobe license agreement accompanying it. If you have received this file from a source other 
-// than Adobe, then your use, modification, or distribution of it requires the prior written permission
-// of Adobe.
+// of the Adobe license agreement accompanying it. 
 // =================================================================================================
 
 #include "public/include/XMP_Environment.h"	// ! XMP_Environment.h must be the first included header.
@@ -186,6 +184,10 @@ Chunk::Chunk( ContainerChunk* _parent, RIFF_MetaHandler* handler, bool skip, Chu
 		bool repairFile = XMP_OptionIsSet ( handler->parent->openFlags, kXMPFiles_OpenRepairFile );
 		if ( (! isUpdate) || (repairFile && (_parent == 0)) ) {
 			this->oldSize = chunkLimit - this->oldPos;
+			if (this->oldSize < 8)
+			{
+				XMP_Throw("Invalid RIFF chunk size", kXMPErr_BadFileFormat);
+			}
 		} else {
 			XMP_Throw ( "Bad RIFF chunk size", kXMPErr_BadFileFormat );
 		}

@@ -3,9 +3,7 @@
 // All Rights Reserved.
 //
 // NOTICE:	Adobe permits you to use, modify, and distribute this file in accordance with the terms
-// of the Adobe license agreement accompanying it. If you have received this file from a source other 
-// than Adobe, then your use, modification, or distribution of it requires the prior written permission
-// of Adobe.
+// of the Adobe license agreement accompanying it. 
 // =================================================================================================
 
 #include "public/include/XMP_Environment.h"	// ! This must be the first include!
@@ -784,9 +782,12 @@ AppendSubtree ( const XMP_Node * sourceNode, XMP_Node * destParent,
 		for ( size_t sourceNum = 0, sourceLim = sourceNode->children.size(); sourceNum != sourceLim && destNode!= NULL; ++sourceNum ) {
 			const XMP_Node * sourceField = sourceNode->children[sourceNum];
 			AppendSubtree ( sourceField, destNode, mergeCompound, replaceOld, deleteEmpty );
-			if ( deleteEmpty && destNode->children.empty() ) {
-				delete ( destNode );
-				destParent->children.erase ( destPos );
+
+			if (deleteEmpty && destNode->children.empty())
+			{
+				delete (destNode);
+				destNode = NULL;
+				destParent->children.erase(destPos);
 			}
 		}
 		

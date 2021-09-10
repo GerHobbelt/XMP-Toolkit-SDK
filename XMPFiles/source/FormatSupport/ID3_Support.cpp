@@ -4,9 +4,7 @@
 // All Rights Reserved
 //
 // NOTICE: Adobe permits you to use, modify, and distribute this file in accordance with the terms
-// of the Adobe license agreement accompanying it. If you have received this file from a source other 
-// than Adobe, then your use, modification, or distribution of it requires the prior written permission
-// of Adobe.
+// of the Adobe license agreement accompanying it. 
 // =================================================================================================
 
 #include "public/include/XMP_Environment.h"	// ! This must be the first include.
@@ -442,7 +440,7 @@ ID3v2Frame::ID3v2Frame ( XMP_Uns32 _id ) : frameDefaults
 
 void ID3v2Frame::release()
 {
-	if ( this->content != 0 ) delete this->content;
+	if ( this->content != 0 ) delete [] content;
 	this->content = 0;
 	this->contentSize = 0;
 }
