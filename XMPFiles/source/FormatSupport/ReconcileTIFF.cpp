@@ -80,7 +80,9 @@ static const TIFF_MappingToXMP sPrimaryIFDMappings[] = {	// A blank name indicat
 	{ /*   258 */ kTIFF_BitsPerSample,             kTIFF_ShortType,       3,         kExport_Never,      kXMP_NS_TIFF,  "BitsPerSample" },
 	{ /*   259 */ kTIFF_Compression,               kTIFF_ShortType,       1,         kExport_Never,      kXMP_NS_TIFF,  "Compression" },
 	{ /*   262 */ kTIFF_PhotometricInterpretation, kTIFF_ShortType,       1,         kExport_Never,      kXMP_NS_TIFF,  "PhotometricInterpretation" },
-	{ /*   274 */ kTIFF_Orientation,               kTIFF_ShortType,       1,         kExport_NoDelete,   kXMP_NS_TIFF,  "Orientation" },
+	{ /*   274 */ kTIFF_Orientation,               kTIFF_ShortType,       1,         kExport_Always,   kXMP_NS_TIFF,  "Orientation" },
+	{ /*   274 */ kTIFF_Rating,                    kTIFF_ShortType,       1,         kExport_Always,   kXMP_NS_XMP,  "Rating" },
+	{ /*   274 */ kTIFF_RatingPercent,             kTIFF_ShortType,       1,         kExport_Always,   kXMP_NS_MicrosoftPhoto,  "Rating" },
 	{ /*   277 */ kTIFF_SamplesPerPixel,           kTIFF_ShortType,       1,         kExport_Never,      kXMP_NS_TIFF,  "SamplesPerPixel" },
 	{ /*   284 */ kTIFF_PlanarConfiguration,       kTIFF_ShortType,       1,         kExport_Never,      kXMP_NS_TIFF,  "PlanarConfiguration" },
 	{ /*   529 */ kTIFF_YCbCrCoefficients,         kTIFF_RationalType,    3,         kExport_Never,      kXMP_NS_TIFF,  "YCbCrCoefficients" },
@@ -2748,7 +2750,8 @@ ExportTIFF_StandardMappings ( XMP_Uns8 ifd, TIFF_Manager * tiff, const SXMPMeta 
 			bool haveXMP  = xmp.GetProperty ( mapInfo.ns, mapInfo.name, &xmpValue, &xmpForm );
 			if ( ! haveXMP ) {
 			
-				if ( haveTIFF && (mapInfo.exportMode == kExport_Always) ) tiff->DeleteTag ( ifd, mapInfo.id );
+				if ( haveTIFF && (mapInfo.exportMode == kExport_Always) ) 
+					tiff->DeleteTag ( ifd, mapInfo.id );
 
 			} else {
 			
