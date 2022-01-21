@@ -15,15 +15,21 @@ The XMP Toolkit allows you to integrate XMP functionality into your product or s
 
 The XMP Toolkit SDK contains two libraries, XMPCore and XMPFiles. XMPCore and XMPFiles are provided as C++ implementations.
 
+
 ### XMPCore
+
 This library supplies an API for parsing, manipulating, and serializing metadata, according to the XMP data model and regardless of the file format of the data it describes.
 
+
 ### XMPFiles
+
 This library supplies an API for locating, adding, or updating the XMP metadata in a file. The API allows you to retrieve the entire XMP Packet, which you can then pass to the XMPCore component in order to manipulate the individual XMP properties.
 
 *It also includes a plug-in SDK that allows you to create an XMPFiles Plug-in that handles metadata for additional file formats, or replaces built-in format handlers with custom ones.*
 
+
 ## XMP Toolkit SDK Contents
+
 This git repo contains the following folders under the root folder:
 
 Directory | Details 
@@ -40,11 +46,14 @@ third-party/ <br>&nbsp;&nbsp;&nbsp;expat/<br>&nbsp;&nbsp;&nbsp;zlib/<br>&nbsp;&n
 tools/ 			| Placeholder for downloading and placing CMake tool
 XMPFilesPlugins/| The header files and glue code of the XMPFiles plug-in SDK and a sample plug-in.
 
+
 ## How to Build and Use
 
 XMP Toolkit SDK provides build script to ease the process. This repository contains everything needed to build SDK libraries on Mac OS®, Windows®, UNIX®/Linux®, iOS and Android. For detailed build steps , refer the [Programmer's Guide](https://github.com/adobe/XMP-Toolkit-SDK/blob/master/docs/XMPProgrammersGuide.pdf)
 
-## Documentation 
+
+## Documentation
+
 See extensive [API documentation](https://github.com/adobe/XMP-Toolkit-SDK/blob/master/docs/XMPProgrammersGuide.pdf) where a complete API Reference is available.
 
 The XMP Specification, available from [Adobe Developer Center (XMP)](http://adobe.com/devnet/xmp/), provides a complete formal
@@ -69,11 +78,17 @@ Packets and embedded in different file formats. It includes information about ho
 incorporates other metadata formats, and how to reconcile values that are represented in multiple
 metadata formats.
 
+
 ## Contributing
+
 Contributions are welcomed! Read the [Contributing Guide](https://github.com/adobe/XMP-Toolkit-SDK/blob/master/CONTRIBUTING.md) for more information.
 
+
 ## Licensing
+
 This project is BSD licensed. See [LICENSE](https://github.com/adobe/XMP-Toolkit-SDK/blob/main/LICENSE) for more information.
 
+
 ## Report Issues/Bugs
+
 You can report the issues in the issues section of the github repo.
