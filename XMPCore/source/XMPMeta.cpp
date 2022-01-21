@@ -677,6 +677,7 @@ RegisterStandardAliases()
 	RegisterAlias ( kXMP_NS_PNG, "ModificationTime", kXMP_NS_XMP, "ModifyDate", 0 );
 	RegisterAlias ( kXMP_NS_PNG, "Software",         kXMP_NS_XMP, "CreatorTool", 0 );
 	RegisterAlias ( kXMP_NS_PNG, "Title",            kXMP_NS_DC,  "title", kXMP_PropArrayIsAltText);
+	
 
 }	// RegisterStandardAliases
 
@@ -866,6 +867,8 @@ XMPMeta::Initialize()
 	(void) RegisterNamespace ( "http://ns.adobe.com/iX/1.0/", "iX", &voidPtr, &voidLen );
 
 	(void) RegisterNamespace( kXMP_NS_iXML, "iXML", &voidPtr, &voidLen );
+
+	(void)RegisterNamespace(kXMP_NS_MicrosoftPhoto, "MicrosoftPhoto", &voidPtr, &voidLen);
 
 	RegisterStandardAliases();
 

@@ -337,6 +337,7 @@
     <ClCompile Include="XMPFiles\source\FileHandlers\Trivial_Handler.cpp" />
     <ClCompile Include="XMPFiles\source\FileHandlers\UCF_Handler.cpp" />
     <ClCompile Include="XMPFiles\source\FileHandlers\WAVE_Handler.cpp" />
+    <ClCompile Include="XMPFiles\source\FileHandlers\WEBP_Handler.cpp" />
     <ClCompile Include="XMPFiles\source\FileHandlers\XDCAMEX_Handler.cpp" />
     <ClCompile Include="XMPFiles\source\FileHandlers\XDCAMFAM_Handler.cpp" />
     <ClCompile Include="XMPFiles\source\FileHandlers\XDCAMSAM_Handler.cpp" />
@@ -382,6 +383,7 @@
     <ClCompile Include="XMPFiles\source\FormatSupport\WAVE\PrmLMetadata.cpp" />
     <ClCompile Include="XMPFiles\source\FormatSupport\WAVE\WAVEBehavior.cpp" />
     <ClCompile Include="XMPFiles\source\FormatSupport\WAVE\WAVEReconcile.cpp" />
+    <ClCompile Include="XMPFiles\source\FormatSupport\WEBP_Support.cpp" />
     <ClCompile Include="XMPFiles\source\FormatSupport\XDCAM_Support.cpp" />
     <ClCompile Include="XMPFiles\source\FormatSupport\XMPScanner.cpp" />
     <ClCompile Include="XMPFiles\source\HandlerRegistry.cpp" />
@@ -465,6 +467,7 @@
     <ClInclude Include="XMPFiles\source\FileHandlers\Trivial_Handler.hpp" />
     <ClInclude Include="XMPFiles\source\FileHandlers\UCF_Handler.hpp" />
     <ClInclude Include="XMPFiles\source\FileHandlers\WAVE_Handler.hpp" />
+    <ClInclude Include="XMPFiles\source\FileHandlers\WEBP_Handler.hpp" />
     <ClInclude Include="XMPFiles\source\FileHandlers\XDCAMEX_Handler.hpp" />
     <ClInclude Include="XMPFiles\source\FileHandlers\XDCAMFAM_Handler.hpp" />
     <ClInclude Include="XMPFiles\source\FileHandlers\XDCAMSAM_Handler.hpp" />
@@ -508,6 +511,7 @@
     <ClInclude Include="XMPFiles\source\FormatSupport\WAVE\PrmLMetadata.h" />
     <ClInclude Include="XMPFiles\source\FormatSupport\WAVE\WAVEBehavior.h" />
     <ClInclude Include="XMPFiles\source\FormatSupport\WAVE\WAVEReconcile.h" />
+    <ClInclude Include="XMPFiles\source\FormatSupport\WEBP_Support.hpp" />
     <ClInclude Include="XMPFiles\source\FormatSupport\XDCAM_Support.hpp" />
     <ClInclude Include="XMPFiles\source\FormatSupport\XMPScanner.hpp" />
     <ClInclude Include="XMPFiles\source\HandlerRegistry.h" />

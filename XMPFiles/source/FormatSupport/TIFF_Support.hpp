@@ -261,6 +261,9 @@ enum {
 	kTIFF_XPKeywords = 40094,
 	kTIFF_XPSubject = 40095,
 
+	kTIFF_Rating = 18246, // 0x4746,
+	kTIFF_RatingPercent = 18249, //0x4749,
+
 	// GPS IFD tags.
 
 	kTIFF_GPSVersionID = 0,
@@ -338,6 +341,10 @@ static const XMP_Uns16 sKnownPrimaryIFDTags[] =
 	kTIFF_YCbCrPositioning,				//   531
 	kTIFF_ReferenceBlackWhite,			//   532
 	kTIFF_XMP,							//   700
+
+	kTIFF_Rating,						// 18246
+	kTIFF_RatingPercent,				// 18249
+	
 	kTIFF_Copyright,					// 33432
 	kTIFF_IPTC,							// 33723
 	kTIFF_PSIR,							// 34377

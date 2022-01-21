@@ -5,6 +5,7 @@ Few changes from the original:
 - POPM (rating) and TPE2 (albumArtist) reconciliations for MP3
 - windows tag support and other fixes from chebum
 - tweaks for C++ 17
+- WEBP support from [Exempi](https://libopenraw.freedesktop.org/exempi/)
 
 # XMP-Toolkit-SDK
 
