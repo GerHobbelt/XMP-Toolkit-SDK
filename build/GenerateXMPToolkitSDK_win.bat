@@ -97,9 +97,9 @@ exit /B 0
 
 :CLEANALL
 echo "Cleaning..."
-if exist vc15 rmdir /S /Q vc15
-if exist ..\XMPCore\build\vc15 rmdir /S /Q ..\XMPCore\build\vc15
-if exist ..\XMPFiles\build\vc15 rmdir /S /Q ..\XMPFiles\build\vc15
+if exist vc16 rmdir /S /Q vc16
+if exist ..\XMPCore\build\vc16 rmdir /S /Q ..\XMPCore\build\vc16
+if exist ..\XMPFiles\build\vc16 rmdir /S /Q ..\XMPFiles\build\vc16
 if exist ..\public\libraries\windows rmdir /S /Q ..\public\libraries\windows
 if exist ..\public\libraries\windows_x64 rmdir /S /Q ..\public\libraries\windows_x64
 echo "Done"
