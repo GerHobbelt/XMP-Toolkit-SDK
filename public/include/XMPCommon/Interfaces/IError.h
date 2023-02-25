@@ -156,7 +156,7 @@ namespace AdobeXMPCommon {
 
 		//!
 		//! @brief Get the count of parameters.
-		//! \return An object of type \#AdobeXMPCommon::sizet containing the count of paramaters associated with the error object.
+		//! \return An object of type \#AdobeXMPCommon::sizet containing the count of parameters associated with the error object.
 		//!
 		virtual sizet APICALL GetParametersCount() const __NOTHROW__ = 0;
 
